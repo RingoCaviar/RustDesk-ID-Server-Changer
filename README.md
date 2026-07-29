@@ -39,6 +39,8 @@ Bu seçenek, bilgisayarınızda daha önceden saklanmış olan özel sunucu (Pri
 
 Tüm komut dosyaları Windows 7, 8.1, 10 ve 11'de test edilmiştir (PowerShell 2.0 uyumlu).
 
+> **Güncelleme (v3.1):** T3Cabon adlı kullanıcının açtığı [#13 numaralı bildirim](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) referans alınarak, uzak bağlantı kopma sorunları çözülmüş; servis kapatma işlemleri konfigürasyon uygulama sonrasına taşınmıştır.
+
 </details>
 
 <details>
@@ -71,6 +73,8 @@ If you don't have a backup or you want to define a brand-new Private Server, use
 This option completely clears the previously saved Private Server backup configuration files on your computer. It is very useful when you want to change your server address or completely remove the traces of the old server to start with a clean slate.
 
 All scripts are tested on Windows 7 - 8.1 - 10 and 11 (PowerShell 2.0 compatible).
+
+> **Update (v3.1):** Thanks to the [#13 issue](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) raised by user T3Cabon, remote connection drop issues have been resolved; service termination operations are now executed after configuration is applied.
 
 </details>
 
