@@ -1,83 +1,72 @@
-<a href="https://buymeacoffee.com/abdullaherturk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+# RustDesk ID 与服务器修改工具
 
-# RustDesk ID & Server Changer v3
+这是一个 Windows 批处理工具，用于修改 RustDesk ID，以及切换公共服务器和私有服务器配置。
 
-## Download Link:
+[![版本](https://img.shields.io/badge/版本-v3-blue.svg)](https://github.com/RingoCaviar/RustDesk-ID-Server-Changer)
 
-[![Stable?](https://img.shields.io/badge/Release-v1.svg?style=flat)](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/archive/refs/heads/main.zip)
+## 下载
 
-RustDesk Github: https://github.com/rustdesk/rustdesk
+- [下载中文版本](https://github.com/RingoCaviar/RustDesk-ID-Server-Changer/archive/refs/heads/chinese-version.zip)
+- [RustDesk 官方仓库](https://github.com/rustdesk/rustdesk)
 
-<details>
-<summary>🇹🇷 Türkçe</summary>
+中文脚本文件：`RustDesk_ID_Server_Changer_CN.bat`
 
-Bu betik ile RustDesk ID bilgilerinizi ve Sunucu yapılandırmalarınızı dilediğiniz gibi değiştirebilirsiniz. Betik, işletim sisteminizin dilini otomatik olarak algılayıp arayüzünü ona göre (Türkçe veya İngilizce) ayarlar. Aynı zamanda taşınabilir (portable) RustDesk sürümleriyle de uyumlu çalışacak şekilde güncellenmiştir.
+## 功能
 
-Betiğin sunduğu seçenekler için detaylı açıklamalar:
+### 1. 使用计算机名设置 RustDesk ID
 
-**1. "RustDesk ID'sini bilgisayar adıyla değiştir"**
-Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi otomatik olarak kurulu olduğu bilgisayarın adına dönüşecektir.
-Özellikle bilgisayar laboratuvarı gibi ortamlarda imaj atıldıktan sonra RustDesk ID bilgileri bazen değişmemektedir; bu betik ile bu sorun çözülür. Yeniden başlatmaya gerek yoktur.
+将 RustDesk ID 修改为当前计算机名，适合批量部署或系统镜像恢复后的设备。修改后无需重启 Windows。
 
-**2. "RustDesk ID'sini 9 haneli rastgele sayılarla değiştir"**
-Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi 9 haneli rastgele rakamlardan oluşturulacak bir değere dönüştürülür. Yeniden başlatmaya gerek yoktur.
+### 2. 使用随机数字设置 RustDesk ID
 
-**3. "RustDesk ID'sini belirttiğiniz değere ayarlayın."**
-Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi tamamen kullanıcının belirteceği bir değere dönüştürülür. Yeniden başlatmaya gerek yoktur.
+生成 9 位随机数字，并将其设置为新的 RustDesk ID。
 
-**4. "Public Sunucuya Geç (Özel Sunucu Bilgisini Temizle)"**
-Eğer aktif bir özel sunucu yapılandırmanız varsa, bu seçenek bu ayarları güvenli bir şekilde yedekler ve RustDesk'i varsayılan Public (Genel) sunuculara geçirir. Eğer zaten Public sunucudaysanız, hiçbir işlem yapmaz ve sizi uyarır.
+### 3. 设置自定义 RustDesk ID
 
-**5. "Private Sunucuya Geç (Özel Sunucu Bilgisini Uygula)"**
-Bu seçenek, daha önce yedeklenmiş olan özel sunucu ayarlarınızı bularak geri yükler ve manuel herhangi bir ayar yapmanıza gerek kalmadan Özel sunucunuza sorunsuz bir şekilde geri dönmenizi sağlar. Eğer sistemde özel bir sunucu yedeği yoksa sizi ilk olarak ayarlarınızı girmeniz konusunda uyarır.
+输入一个自定义 ID。ID 至少需要 6 个字符。
 
-**6. "Yeni Özel Sunucu Tanımla"**
-Daha önce girilmiş hiçbir özel sunucu ayarınız yoksa veya yepyeni bir sunucu eklemek istiyorsanız bu seçeneği kullanabilirsiniz. Sizden sadece Sunucu IP/Host adresini ve Key bilgisini isteyip konfigürasyonu tamamlar. Standart API portlarıyla (21114 vb.) tam uyumlu çalışır.
+### 4. 切换到公共服务器
 
-**7. "Private Sunucu Yedeklerini Sil"**
-Bu seçenek, bilgisayarınızda daha önceden saklanmış olan özel sunucu (Private Server) yedek yapılandırma dosyalarını tamamen temizler. Sunucu adresinizi değiştirmek veya sistemde kayıtlı olan eski sunucu izlerini silip sıfırdan temiz bir kurulum yapmak istediğinizde kullanılır.
+备份当前私有服务器配置，然后清除自定义服务器信息，使 RustDesk 使用默认公共服务器。
 
-Tüm komut dosyaları Windows 7, 8.1, 10 ve 11'de test edilmiştir (PowerShell 2.0 uyumlu).
+### 5. 切换到私有服务器
 
-> **Güncelleme (v3.1):** T3Cabon adlı kullanıcının açtığı [#13 numaralı bildirim](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) referans alınarak, uzak bağlantı kopma sorunları çözülmüş; servis kapatma işlemleri konfigürasyon uygulama sonrasına taşınmıştır.
+恢复之前备份的私有服务器配置。如果没有找到备份，脚本会提示先在 RustDesk 中配置私有服务器。
 
-</details>
+### 6. 设置新的私有服务器
 
-<details>
-<summary>🇬🇧 English</summary>
+输入私有服务器的 IP 地址或主机名，以及可选的 Key，脚本会自动写入配置并重启 RustDesk。
 
-You will be able to change the RustDesk ID information and Server configurations as you wish with the script. The script automatically detects your OS language and adjusts its interface accordingly. It has also been updated to be fully compatible with portable RustDesk versions.
+### 7. 删除私有服务器备份
 
-Detailed description for options in the script:
+删除脚本此前保存的私有服务器配置备份。
 
-**1. "Set RustDesk ID with computer name"**
-With this option, the ID information of the RustDesk remote connection program will automatically turn into the name of the host computer.
-RustDesk ID information sometimes does not change after image deployment in computer laboratory environments; the problem will be solved with this script file. There is no need to reboot.
+## 使用方法
 
-**2. "Set RustDesk ID with 9-digit random numbers"**
-With this option, the ID information of the RustDesk remote connection program will be converted into a value created from 9-digit random numbers. There is no need to reboot.
+1. 下载 `RustDesk_ID_Server_Changer_CN.bat`。
+2. 右键脚本，选择“以管理员身份运行”。
+3. 根据菜单提示输入选项。
 
-**3. "Set the RustDesk ID to the value you specify"**
-With this option, the ID information of the RustDesk remote connection program will be converted to the value specified by the user. There is no need to reboot.
+脚本会自动检测 RustDesk 的安装位置，支持注册表记录的安装路径、自定义盘符以及常见的 `Program Files` 目录。
 
-**4. "Set Public Server (Clear Custom Server Info)"**
-If you have a custom/private server configuration active, this option will back it up securely and switch RustDesk to the default Public servers. If you are already on the Public server, it will gracefully ignore the request.
+## 注意事项
 
-**5. "Set Private Server (Apply Custom Server Info)"**
-This option checks for a previously backed-up custom server configuration and restores it, seamlessly switching you back to your Private server without manual configuration. If no backup is found, it will prompt you to log into your server first.
+- 使用修改 ID 或服务器配置的功能前，请先关闭正在运行的 RustDesk 连接。
+- 脚本需要管理员权限才能修改系统服务模式下的配置文件。
+- 修改服务器配置前，建议保留现有配置备份。
+- 当前脚本主要适用于 Windows 安装版 RustDesk。
 
-**6. "Set New Private Server"**
-If you don't have a backup or you want to define a brand-new Private Server, use this option. It will ask for your base Server IP/Host and Key, and automatically configure RustDesk for you. It is fully compatible with standard API ports (like 21114).
+## 兼容性
 
-**7. "Delete Private Server Backups"**
-This option completely clears the previously saved Private Server backup configuration files on your computer. It is very useful when you want to change your server address or completely remove the traces of the old server to start with a clean slate.
+- Windows 7、8.1、10、11
+- PowerShell 2.0 及更高版本
+- RustDesk 安装版
 
-All scripts are tested on Windows 7 - 8.1 - 10 and 11 (PowerShell 2.0 compatible).
+## 预览
 
-> **Update (v3.1):** Thanks to the [#13 issue](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) raised by user T3Cabon, remote connection drop issues have been resolved; service termination operations are now executed after configuration is applied.
+![工具预览](https://github.com/RingoCaviar/RustDesk-ID-Server-Changer/blob/chinese-version/preview.jpg)
 
-</details>
+## 相关链接
 
-Sample preview:
-
-![sample](https://github.com/abdullah-erturk/RustDesk-ID-Changer/blob/main/preview.jpg)
+- [RustDesk 官方网站](https://rustdesk.com/)
+- [项目问题反馈](https://github.com/RingoCaviar/RustDesk-ID-Server-Changer/issues)
