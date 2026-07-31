@@ -56,7 +56,37 @@ if not exist "%CONFIG_FILE%" (
     exit /b 1
 )
 
-echo 配置已写入：%CONFIG_FILE%
+findstr /L /C:"custom-rendezvous-server = '%ID_SERVER%'" "%CONFIG_FILE%" >nul
+if errorlevel 1 (
+    echo [失败] ID服务器校验失败，配置未生效。
+    echo 配置文件：%CONFIG_FILE%
+    pause
+    exit /b 1
+)
+findstr /L /C:"key = '%PUBLIC_KEY%'" "%CONFIG_FILE%" >nul
+if errorlevel 1 (
+    echo [失败] 公钥校验失败，配置未生效。
+    echo 配置文件：%CONFIG_FILE%
+    pause
+    exit /b 1
+)
+if defined RELAY_SERVER (
+    findstr /L /C:"relay-server = '%RELAY_SERVER%'" "%CONFIG_FILE%" >nul
+    if errorlevel 1 (
+        echo [失败] 中转服务器校验失败，配置未生效。
+        echo 配置文件：%CONFIG_FILE%
+        pause
+        exit /b 1
+    )
+)
+
+echo.
+echo ================================================
+echo [成功] RustDesk服务器配置已写入并校验通过！
+echo ID服务器：%ID_SERVER%
+if defined RELAY_SERVER echo 中转服务器：%RELAY_SERVER%
+echo 配置文件：%CONFIG_FILE%
+echo ================================================
 echo 正在启动 RustDesk...
 set "RUSTDESK_EXE="
 for %%P in ("%ProgramFiles%\RustDesk\RustDesk.exe" "%ProgramFiles(x86)%\RustDesk\RustDesk.exe" "%LOCALAPPDATA%\Programs\RustDesk\RustDesk.exe") do (
