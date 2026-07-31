@@ -18,9 +18,32 @@ goto :eof
 ::===============================================================================================================
 :Main
 cls
-if exist "C:\Program Files\RustDesk\rustdesk.exe" (
-cd "C:\Program Files\RustDesk\"
-for /f "delims=" %%i in ('rustdesk.exe --get-id ^| more') do set rustdesk_id=%%i
+set "RUSTDESK_EXE="
+set "RUSTDESK_DIR="
+set "RUSTDESK_CONFIG_DIR="
+set "RUSTDESK_SERVICE=0"
+
+:: Locate installed RustDesk from the uninstall registry entries first, then common paths.
+for /f "delims=" %%i in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$paths=@('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'); $p=Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object {$_.DisplayName -eq 'RustDesk'} | Select-Object -First 1; $c=@(); if($p.InstallLocation){$c+=[IO.Path]::Combine($p.InstallLocation,'rustdesk.exe')}; if($p.DisplayIcon){$c+=($p.DisplayIcon -replace [char]34,'' -replace ',\d+$','')}; $c+='C:\Program Files\RustDesk\rustdesk.exe'; $c+='C:\Program Files (x86)\RustDesk\rustdesk.exe'; $drives=Get-PSDrive -PSProvider FileSystem; foreach($d in $drives){$c+=Join-Path $d.Root 'Program Files\RustDesk\rustdesk.exe'; $c+=Join-Path $d.Root 'Program Files (x86)\RustDesk\rustdesk.exe'}; foreach($x in $c){if(Test-Path -LiteralPath $x){$x; break}}"') do set "RUSTDESK_EXE=%%i"
+
+if not defined RUSTDESK_EXE (
+    echo RustDesk was not found.
+    echo Checked the RustDesk uninstall registry entries and common installation paths.
+    pause >nul
+    exit /b 1
+)
+
+for %%i in ("%RUSTDESK_EXE%") do set "RUSTDESK_DIR=%%~dpi"
+set "RUSTDESK_DIR=%RUSTDESK_DIR:~0,-1%"
+sc query RustDesk >nul 2>&1 && set "RUSTDESK_SERVICE=1"
+if "%RUSTDESK_SERVICE%"=="1" (
+    set "RUSTDESK_CONFIG_DIR=C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config"
+) else (
+    set "RUSTDESK_CONFIG_DIR=%APPDATA%\RustDesk\config"
+)
+if exist "%RUSTDESK_EXE%" (
+cd /d "%RUSTDESK_DIR%"
+for /f "delims=" %%i in ('"%RUSTDESK_EXE%" --get-id ^| more') do set rustdesk_id=%%i
 goto :Run
 ) else (
 echo.
@@ -117,43 +140,43 @@ echo.
 :ID_Host
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_Host.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Host.ps1
+echo $id = Get-Content "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Host.ps1
 echo $hostname = hostname >> RustDesk_ID_Host.ps1
 echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_Host.ps1
 echo $newId = "id = '$hostname'" >> RustDesk_ID_Host.ps1
 echo Write-Host "New ID: $newId" >> RustDesk_ID_Host.ps1
-echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Host.ps1
+echo $fileContent = Get-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_Host.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_Host.ps1
-echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Host.ps1
+echo $newContent ^| Set-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_Host.ps1
 echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
 echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Host.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Host.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 goto :done
 ::===============================================================================================================
 :ID_Random
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_Random.ps1
 echo $randomId = -join ((48..57) ^| Get-Random -Count 9 ^| ForEach-Object {[char]$_}) >> RustDesk_ID_Random.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Random.ps1
+echo $id = Get-Content "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Random.ps1
 echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_Random.ps1
 echo $newId = "id = '$randomId'" >> RustDesk_ID_Random.ps1
 echo Write-Host "New ID: $newId" >> RustDesk_ID_Random.ps1
-echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Random.ps1
+echo $fileContent = Get-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_Random.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_Random.ps1
-echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Random.ps1
+echo $newContent ^| Set-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_Random.ps1
 echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
 echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Random.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Random.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 goto :done
 ::===============================================================================================================
 :ID_UserDefined
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_UserDefined.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_UserDefined.ps1
+echo $id = Get-Content "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_UserDefined.ps1
 if %LANG_TR%==1 (
 echo YENò RUSTDESK ID DE¶ERI EN AZ 6 KARAKTER OLMALIDIR
 timeout /t 2 >nul 2>&1
@@ -168,20 +191,20 @@ echo $newId = Read-Host "Enter RustDesk ID" >> RustDesk_ID_UserDefined.ps1
 echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_UserDefined.ps1
 echo $newId = "id = '$newId'" >> RustDesk_ID_UserDefined.ps1
 echo Write-Host "New ID: $newId" >> RustDesk_ID_UserDefined.ps1
-echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
+echo $fileContent = Get-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_UserDefined.ps1
-echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
+echo $newContent ^| Set-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
 echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
 echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_UserDefined.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_UserDefined.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 goto :done
 ::===============================================================================================================
 :Server_Public
 echo.
 echo $isPublic = $true > check_public.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> check_public.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> check_public.ps1
 echo foreach ($path in $paths) { if (Test-Path $path) { $content = Get-Content $path; if (($content -match "^custom-rendezvous-server") -or ($content -match "^api-server") -or ($content -match "^custom-rs-server")) { $isPublic = $false } } } >> check_public.ps1
 echo if ($isPublic) { exit 1 } else { exit 0 } >> check_public.ps1
 powershell.exe -ExecutionPolicy Bypass -File check_public.ps1
@@ -197,7 +220,7 @@ if errorlevel 1 (
 del check_public.ps1 >nul 2>&1
 
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Public.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Public.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> RustDesk_Server_Public.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Public.ps1
 echo     if (Test-Path $path) { >> RustDesk_Server_Public.ps1
 echo         $content = Get-Content $path >> RustDesk_Server_Public.ps1
@@ -224,7 +247,7 @@ if errorlevel 3 (
     )
     goto :done
 )
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 echo.
 if %LANG_TR%==1 (
 echo Mevcut private sunucu ayarlarç yedeklendi ve Public sunucuya geáildi.
@@ -237,7 +260,7 @@ goto :done
 echo.
 echo $isPrivate = $false > check_private.ps1
 echo $hasBackup = $false >> check_private.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> check_private.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> check_private.ps1
 echo foreach ($path in $paths) { if (Test-Path $path) { $content = Get-Content $path; if (($content -match "^custom-rendezvous-server") -or ($content -match "^api-server") -or ($content -match "^custom-rs-server")) { $isPrivate = $true } } ; if (Test-Path "$path.backup") { $hasBackup = $true } } >> check_private.ps1
 echo if ($isPrivate) { exit 1 } elseif (-not $hasBackup) { exit 2 } else { exit 0 } >> check_private.ps1
 powershell.exe -ExecutionPolicy Bypass -File check_private.ps1
@@ -264,7 +287,7 @@ if errorlevel 1 (
 del check_private.ps1 >nul 2>&1
 
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Private.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Private.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> RustDesk_Server_Private.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Private.ps1
 echo     $backupPath = "$path.backup" >> RustDesk_Server_Private.ps1
 echo     if (Test-Path $backupPath) { Copy-Item -Path $backupPath -Destination $path -Force } >> RustDesk_Server_Private.ps1
@@ -273,7 +296,7 @@ echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinu
 echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 echo.
 if %LANG_TR%==1 (
 echo Yedeklenen Private Sunucu ayarlarç geri yÅklendi.
@@ -285,7 +308,7 @@ goto :done
 :Server_Private_New
 echo.
 echo $isPrivate = $false > check_private_new.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> check_private_new.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> check_private_new.ps1
 echo foreach ($path in $paths) { if (Test-Path $path) { $content = Get-Content $path; if (($content -match "^custom-rendezvous-server") -or ($content -match "^api-server") -or ($content -match "^custom-rs-server")) { $isPrivate = $true } } } >> check_private_new.ps1
 echo if ($isPrivate) { exit 1 } else { exit 0 } >> check_private_new.ps1
 powershell.exe -ExecutionPolicy Bypass -File check_private_new.ps1
@@ -322,7 +345,7 @@ goto Server_Private_New_Proceed
 :Server_Private_New_Proceed
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Private_New.ps1
-echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Private_New.ps1
+echo $paths = @("%RUSTDESK_CONFIG_DIR%\RustDesk2.toml") >> RustDesk_Server_Private_New.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Private_New.ps1
 echo     if (Test-Path $path) { >> RustDesk_Server_Private_New.ps1
 echo         $newContent = Get-Content $path >> RustDesk_Server_Private_New.ps1
@@ -336,7 +359,7 @@ echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinu
 echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private_New.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private_New.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private_New.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_EXE%" --tray
 echo.
 if %LANG_TR%==1 (
 echo Yeni Private Sunucu baüarçyla tançmlandç ve RustDesk yeniden baülatçldç.
@@ -347,8 +370,7 @@ goto :done
 ::===============================================================================================================
 :Delete_Backups
 echo.
-del /f /q "%APPDATA%\RustDesk\config\RustDesk2.toml.backup" >nul 2>&1
-del /f /q "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml.backup" >nul 2>&1
+del /f /q "%RUSTDESK_CONFIG_DIR%\RustDesk2.toml.backup" >nul 2>&1
 if %LANG_TR%==1 (
 echo Private Sunucu yedekleri baüarçyla silindi!
 ) else (
