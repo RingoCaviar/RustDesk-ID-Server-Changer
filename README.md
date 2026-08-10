@@ -23,7 +23,7 @@ Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi otomatik olara
 Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi 9 haneli rastgele rakamlardan oluşturulacak bir değere dönüştürülür. Yeniden başlatmaya gerek yoktur.
 
 **3. "RustDesk ID'sini belirttiğiniz değere ayarlayın."**
-Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi tamamen kullanıcının belirteceği bir değere dönüştürülür. Yeniden başlatmaya gerek yoktur.
+Bu seçenek ile RustDesk uzak bağlantı programının ID bilgisi tamamen kullanıcının belirteceği bir değere dönüştürülür. Yeniden başlatmaya gerek yoktur. (Not: Bu seçenek yalnızca Windows 10 ve üzeri sistemlerde desteklenmektedir.)
 
 **4. "Public Sunucuya Geç (Özel Sunucu Bilgisini Temizle)"**
 Eğer aktif bir özel sunucu yapılandırmanız varsa, bu seçenek bu ayarları güvenli bir şekilde yedekler ve RustDesk'i varsayılan Public (Genel) sunuculara geçirir. Eğer zaten Public sunucudaysanız, hiçbir işlem yapmaz ve sizi uyarır.
@@ -37,7 +37,7 @@ Daha önce girilmiş hiçbir özel sunucu ayarınız yoksa veya yepyeni bir sunu
 **7. "Private Sunucu Yedeklerini Sil"**
 Bu seçenek, bilgisayarınızda daha önceden saklanmış olan özel sunucu (Private Server) yedek yapılandırma dosyalarını tamamen temizler. Sunucu adresinizi değiştirmek veya sistemde kayıtlı olan eski sunucu izlerini silip sıfırdan temiz bir kurulum yapmak istediğinizde kullanılır.
 
-Tüm komut dosyaları Windows 7, 8.1, 10 ve 11'de test edilmiştir (PowerShell 2.0 uyumlu).
+Tüm komut dosyaları Windows 7, 8.1, 10 ve 11'de test edilmiştir (PowerShell 2.0 tam uyumlu). Yalnızca "Özel ID Belirleme" (3. Seçenek) işletim sistemi kısıtlamalarından dolayı Windows 10 ve üzeri gerektirir.
 
 > **Güncelleme (v3.1):** T3Cabon adlı kullanıcının açtığı [#13 numaralı bildirim](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) referans alınarak, uzak bağlantı kopma sorunları çözülmüş; servis kapatma işlemleri konfigürasyon uygulama sonrasına taşınmıştır.
 
@@ -58,7 +58,7 @@ RustDesk ID information sometimes does not change after image deployment in comp
 With this option, the ID information of the RustDesk remote connection program will be converted into a value created from 9-digit random numbers. There is no need to reboot.
 
 **3. "Set the RustDesk ID to the value you specify"**
-With this option, the ID information of the RustDesk remote connection program will be converted to the value specified by the user. There is no need to reboot.
+With this option, the ID information of the RustDesk remote connection program will be converted to the value specified by the user. There is no need to reboot. (Note: This option is only supported on Windows 10 and later systems.)
 
 **4. "Set Public Server (Clear Custom Server Info)"**
 If you have a custom/private server configuration active, this option will back it up securely and switch RustDesk to the default Public servers. If you are already on the Public server, it will gracefully ignore the request.
@@ -72,7 +72,7 @@ If you don't have a backup or you want to define a brand-new Private Server, use
 **7. "Delete Private Server Backups"**
 This option completely clears the previously saved Private Server backup configuration files on your computer. It is very useful when you want to change your server address or completely remove the traces of the old server to start with a clean slate.
 
-All scripts are tested on Windows 7 - 8.1 - 10 and 11 (PowerShell 2.0 compatible).
+All scripts are tested on Windows 7 - 8.1 - 10 and 11 (PowerShell 2.0 fully compatible). Only "Custom ID Setting" (Option 3) requires Windows 10 and later due to OS limitations.
 
 > **Update (v3.1):** Thanks to the [#13 issue](https://github.com/abdullah-erturk/RustDesk-ID-Server-Changer/issues/13) raised by user T3Cabon, remote connection drop issues have been resolved; service termination operations are now executed after configuration is applied.
 
