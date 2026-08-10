@@ -117,7 +117,9 @@ echo.
 :ID_Host
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_Host.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Host.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
+echo $id = ^(Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml"^)[0] >> RustDesk_ID_Host.ps1
 echo $hostname = hostname >> RustDesk_ID_Host.ps1
 echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_Host.ps1
 echo $newId = "id = '$hostname'" >> RustDesk_ID_Host.ps1
@@ -125,8 +127,6 @@ echo Write-Host "New ID: $newId" >> RustDesk_ID_Host.ps1
 echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Host.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_Host.ps1
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Host.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Host.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Host.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Host.ps1
 start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
@@ -135,16 +135,16 @@ goto :done
 :ID_Random
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_Random.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
 echo $randomId = -join ((48..57) ^| Get-Random -Count 9 ^| ForEach-Object {[char]$_}) >> RustDesk_ID_Random.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_Random.ps1
+echo $id = ^(Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml"^)[0] >> RustDesk_ID_Random.ps1
 echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_Random.ps1
 echo $newId = "id = '$randomId'" >> RustDesk_ID_Random.ps1
 echo Write-Host "New ID: $newId" >> RustDesk_ID_Random.ps1
 echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Random.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_Random.ps1
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Random.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_Random.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Random.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Random.ps1
 start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
@@ -152,27 +152,69 @@ goto :done
 ::===============================================================================================================
 :ID_UserDefined
 echo.
+  ver | findstr /c:"Version 10." >nul
+  if errorlevel 1 (
+      if %LANG_TR%==1 (
+          echo Hata: Bu se‡enek sadece Windows 10 ve zeri srmlerde desteklenmektedir!
+      ) else (
+          echo Error: This option is only supported on Windows 10 and later!
+      )
+      timeout /t 5 >nul
+      goto :Main
+  )
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_UserDefined.ps1
-echo $id = Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_UserDefined.ps1
-if %LANG_TR%==1 (
-echo YEN˜ RUSTDESK ID DE¦ERI EN AZ 6 KARAKTER OLMALIDIR
-timeout /t 2 >nul 2>&1
-echo.
-echo $newId = Read-Host "RustDesk ID Girin" >> RustDesk_ID_UserDefined.ps1
-) else (
-echo THE NEW RUSTDESK ID VALUE MUST BE AT LEAST 6 CHARACTERS
-timeout /t 2 >nul 2>&1
-echo.
-echo $newId = Read-Host "Enter RustDesk ID" >> RustDesk_ID_UserDefined.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
+echo $id = ^(Get-Content "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml"^)[0] >> RustDesk_ID_UserDefined.ps1
+  if %LANG_TR%==1 (
+  echo YENI RUSTDESK ID DEGERI EN AZ 6 KARAKTER OLMALIDIR
+  timeout /t 2 >nul 2>&1
+  echo.
+  goto Ask_ID_TR
+  ) else (
+  echo THE NEW RUSTDESK ID VALUE MUST BE AT LEAST 6 CHARACTERS
+  timeout /t 2 >nul 2>&1
+  echo.
+  goto Ask_ID_EN
+  )
+
+:Ask_ID_TR
+set "RUSTDESK_NEW_ID="
+set /p RUSTDESK_NEW_ID="RustDesk ID Girin (En az 6 karakter): "
+if not defined RUSTDESK_NEW_ID (
+    echo Hata: ID bos olamaz!
+    echo.
+    goto Ask_ID_TR
 )
-echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_UserDefined.ps1
-echo $newId = "id = '$newId'" >> RustDesk_ID_UserDefined.ps1
+if "%RUSTDESK_NEW_ID:~5,1%"=="" (
+    echo Hata: ID en az 6 karakter olmalidir!
+    echo.
+    goto Ask_ID_TR
+)
+goto ID_UserDefined_Continue
+
+:Ask_ID_EN
+set "RUSTDESK_NEW_ID="
+set /p RUSTDESK_NEW_ID="Enter RustDesk ID (At least 6 characters): "
+if not defined RUSTDESK_NEW_ID (
+    echo Error: ID cannot be empty!
+    echo.
+    goto Ask_ID_EN
+)
+if "%RUSTDESK_NEW_ID:~5,1%"=="" (
+    echo Error: ID must be at least 6 characters!
+    echo.
+    goto Ask_ID_EN
+)
+goto ID_UserDefined_Continue
+
+:ID_UserDefined_Continue
+  echo Write-Host "Current ID: %rustdesk_id%" >> RustDesk_ID_UserDefined.ps1
+  echo $newId = "id = '%RUSTDESK_NEW_ID%'" >> RustDesk_ID_UserDefined.ps1
 echo Write-Host "New ID: $newId" >> RustDesk_ID_UserDefined.ps1
 echo $fileContent = Get-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_UserDefined.ps1
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_ID_UserDefined.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_UserDefined.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_UserDefined.ps1
 start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
@@ -197,6 +239,8 @@ if errorlevel 1 (
 del check_public.ps1 >nul 2>&1
 
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Public.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Public.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Public.ps1
 echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Public.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Public.ps1
 echo     if (Test-Path $path) { >> RustDesk_Server_Public.ps1
@@ -212,8 +256,6 @@ echo         $newContent = $newContent ^| Where-Object { $_.Trim() -ne "" } >> R
 echo         $newContent ^| Set-Content $path >> RustDesk_Server_Public.ps1
 echo     } >> RustDesk_Server_Public.ps1
 echo } >> RustDesk_Server_Public.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Public.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Public.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Public.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Public.ps1
 if errorlevel 3 (
@@ -264,13 +306,13 @@ if errorlevel 1 (
 del check_private.ps1 >nul 2>&1
 
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Private.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private.ps1
 echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Private.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Private.ps1
 echo     $backupPath = "$path.backup" >> RustDesk_Server_Private.ps1
 echo     if (Test-Path $backupPath) { Copy-Item -Path $backupPath -Destination $path -Force } >> RustDesk_Server_Private.ps1
 echo } >> RustDesk_Server_Private.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private.ps1
 start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
@@ -322,6 +364,8 @@ goto Server_Private_New_Proceed
 :Server_Private_New_Proceed
 echo.
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_Server_Private_New.ps1
+echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private_New.ps1
+echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private_New.ps1
 echo $paths = @("C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml", "$env:APPDATA\RustDesk\config\RustDesk2.toml") >> RustDesk_Server_Private_New.ps1
 echo foreach ($path in $paths) { >> RustDesk_Server_Private_New.ps1
 echo     if (Test-Path $path) { >> RustDesk_Server_Private_New.ps1
@@ -329,11 +373,10 @@ echo         $newContent = Get-Content $path >> RustDesk_Server_Private_New.ps1
 echo         $newContent = $newContent ^| Where-Object { $_.Trim() -ne "" } >> RustDesk_Server_Private_New.ps1
 echo         $newContent += "custom-rendezvous-server = '%RS_HOST%'" >> RustDesk_Server_Private_New.ps1
 echo         $newContent += "key = '%RS_KEY%'" >> RustDesk_Server_Private_New.ps1
+
 echo         $newContent ^| Set-Content $path >> RustDesk_Server_Private_New.ps1
 echo     } >> RustDesk_Server_Private_New.ps1
 echo } >> RustDesk_Server_Private_New.ps1
-echo if ($svc) { Stop-Service -Name RustDesk -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private_New.ps1
-echo else { Stop-Process -Name "rustdesk" -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1 } >> RustDesk_Server_Private_New.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private_New.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private_New.ps1
 start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
