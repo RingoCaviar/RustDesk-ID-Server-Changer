@@ -129,7 +129,7 @@ echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDes
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Host.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Host.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Host.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 goto :done
 ::===============================================================================================================
 :ID_Random
@@ -147,7 +147,7 @@ echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDes
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_Random.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_Random.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_Random.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 goto :done
 ::===============================================================================================================
 :ID_UserDefined
@@ -217,7 +217,7 @@ echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDes
 echo $newContent ^| Set-Content -Path "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_ID_UserDefined.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_ID_UserDefined.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 goto :done
 ::===============================================================================================================
 :Server_Public
@@ -266,7 +266,7 @@ if errorlevel 3 (
     )
     goto :done
 )
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 echo.
 if %LANG_TR%==1 (
 echo Mevcut private sunucu ayarlarç yedeklendi ve Public sunucuya geáildi.
@@ -315,7 +315,7 @@ echo     if (Test-Path $backupPath) { Copy-Item -Path $backupPath -Destination $
 echo } >> RustDesk_Server_Private.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 echo.
 if %LANG_TR%==1 (
 echo Yedeklenen Private Sunucu ayarlarç geri yÅklendi.
@@ -379,7 +379,7 @@ echo     } >> RustDesk_Server_Private_New.ps1
 echo } >> RustDesk_Server_Private_New.ps1
 echo if ($svc) { Start-Service -Name RustDesk -ErrorAction SilentlyContinue } >> RustDesk_Server_Private_New.ps1
 powershell.exe -ExecutionPolicy Bypass -File RustDesk_Server_Private_New.ps1
-start "" "C:\Program Files\RustDesk\rustdesk.exe" --tray
+start "" "%RUSTDESK_PATH%\rustdesk.exe" --tray
 echo.
 if %LANG_TR%==1 (
 echo Yeni Private Sunucu baüarçyla tançmlandç ve RustDesk yeniden baülatçldç.
