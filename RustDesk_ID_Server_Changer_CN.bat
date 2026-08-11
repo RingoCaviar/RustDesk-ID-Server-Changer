@@ -176,21 +176,29 @@ goto :done
 ::===============================================================================================================
 :ID_UserDefined
 echo.
+ver | findstr /c:"Version 10." >nul
+if errorlevel 1 (
+    echo 此选项仅支持 Windows 10 及更高版本。
+    timeout /t 5 >nul
+    goto :Main
+)
+set "RUSTDESK_NEW_ID="
+:Ask_ID_CN
+set /p RUSTDESK_NEW_ID="请输入 RustDesk ID（至少 6 个字符）："
+if not defined RUSTDESK_NEW_ID (
+    echo 错误：ID 不能为空。
+    echo.
+    goto Ask_ID_CN
+)
+if "%RUSTDESK_NEW_ID:~5,1%"=="" (
+    echo 错误：ID 至少需要 6 个字符。
+    echo.
+    goto Ask_ID_CN
+)
 echo $svc = Get-Service -Name RustDesk -ErrorAction SilentlyContinue > RustDesk_ID_UserDefined.ps1
 echo $id = Get-Content "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" ^| Select-Object -Index 0 >> RustDesk_ID_UserDefined.ps1
-if %LANG_TR%==1 (
-echo YEN? RUSTDESK ID DE|ERI EN AZ 6 KARAKTER OLMALIDIR
-timeout /t 2 >nul 2>&1
-echo.
-echo $newId = Read-Host "RustDesk ID Girin" >> RustDesk_ID_UserDefined.ps1
-) else (
-echo 新的 RustDesk ID 至少需要 6 个字符
-timeout /t 2 >nul 2>&1
-echo.
-echo $newId = Read-Host "请输入 RustDesk ID" >> RustDesk_ID_UserDefined.ps1
-)
 echo Write-Host "当前 ID： %rustdesk_id%" >> RustDesk_ID_UserDefined.ps1
-echo $newId = "id = '$newId'" >> RustDesk_ID_UserDefined.ps1
+echo $newId = "id = '%RUSTDESK_NEW_ID%'" >> RustDesk_ID_UserDefined.ps1
 echo Write-Host "新 ID： $newId" >> RustDesk_ID_UserDefined.ps1
 echo $fileContent = Get-Content -Path "%RUSTDESK_CONFIG_DIR%\RustDesk.toml" >> RustDesk_ID_UserDefined.ps1
 echo $newContent = $fileContent -replace [regex]::Escape($id), $newId >> RustDesk_ID_UserDefined.ps1
